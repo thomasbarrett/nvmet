@@ -330,6 +330,21 @@ impl Port {
         }))
     }
 
+    pub fn has_subsystem(&self, subsys: &Subsystem) -> std::io::Result<bool> {
+        let res = std::fs::read_link(
+            self.path().join("subsystems").join(&subsys.nqn())
+        );
+        match res {
+            Ok(_) => Ok(true),
+            Err(err) => {
+                if err.kind() == std::io::ErrorKind::NotFound {
+                    return Ok(false)
+                }
+                Err(err)
+            }
+        }
+    }
+
     pub fn add_subsystem(&self, subsys: &Subsystem) -> std::io::Result<()> {
         std::os::unix::fs::symlink(
             subsys.path(), 
@@ -339,6 +354,54 @@ impl Port {
 
     pub fn remove_subsystem(&self, nqn: &str) -> std::io::Result<()> {
         std::fs::remove_file(self.path().join("subsystems").join(nqn))
+    }
+
+    pub fn set_addr_adrfam(&mut self, value: &str) -> std::io::Result<()> {
+        let path = self.path().join("addr_adrfam");
+        let mut file = std::fs::File::create(path)?;
+        let value_string = value.to_string() + "\n";
+        file.write_all(value_string.as_bytes())?;
+        Ok(())
+    }
+
+    pub fn addr_adrfam(&self)-> std::result::Result<String, ReadError<String>> {
+        read(self.path().join("addr_adrfam"))
+    }
+
+    pub fn set_addr_traddr(&mut self, value: &str) -> std::io::Result<()> {
+        let path = self.path().join("addr_traddr");
+        let mut file = std::fs::File::create(path)?;
+        let value_string = value.to_string() + "\n";
+        file.write_all(value_string.as_bytes())?;
+        Ok(())
+    }
+
+    pub fn addr_traddr(&self)-> std::result::Result<String, ReadError<String>> {
+        read(self.path().join("addr_traddr"))
+    }
+
+    pub fn set_addr_trsvcid(&mut self, value: &str) -> std::io::Result<()> {
+        let path = self.path().join("addr_trsvcid");
+        let mut file = std::fs::File::create(path)?;
+        let value_string = value.to_string() + "\n";
+        file.write_all(value_string.as_bytes())?;
+        Ok(())
+    }
+
+    pub fn addr_trsvcid(&self)-> std::result::Result<String, ReadError<String>> {
+        read(self.path().join("addr_trsvcid"))
+    }
+
+    pub fn set_addr_trtype(&mut self, value: &str) -> std::io::Result<()> {
+        let path = self.path().join("addr_trtype");
+        let mut file = std::fs::File::create(path)?;
+        let value_string = value.to_string() + "\n";
+        file.write_all(value_string.as_bytes())?;
+        Ok(())
+    }
+
+    pub fn addr_trtype(&self)-> std::result::Result<String, ReadError<String>> {
+        read(self.path().join("addr_trtype"))
     }
 }
 
